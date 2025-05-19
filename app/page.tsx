@@ -20,6 +20,11 @@ export default function Home() {
       description: 'An interactive piano keyboard with multiple sound options and keyboard controls',
       path: '/prototypes/digital-synth'
     },
+    {
+      title: "Captain's Log",
+      description: 'A retro-futuristic note-taking app inspired by Star Trek and classic operating systems',
+      path: '/prototypes/captains-log'
+    },
     // Add your new prototypes here like this:
     // {
     //   title: 'Your new prototype',
