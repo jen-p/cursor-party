@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div className={`${styles.container} ${instrumentSans.className}`}>
       <header className={styles.header}>
-        <h1>Elizabeth's prototypes</h1>
+        <h1 className={styles.headerTitle}>Jen's prototypes</h1>
       </header>
 
       <main>
@@ -38,8 +38,8 @@ export default function Home() {
               href={prototype.path} 
               className={styles.card}
             >
-              <h3>{prototype.title}</h3>
-              <p>{prototype.description}</p>
+              <h3 className={styles.cardTitle}>{prototype.title}</h3>
+              <p className={styles.cardDescription}>{prototype.description}</p>
             </Link>
           ))}
         </section>
