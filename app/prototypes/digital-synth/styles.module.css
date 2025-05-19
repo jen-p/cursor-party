@@ -1,0 +1,522 @@
+.container {
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  gap: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #4fd1c5;
+  text-shadow: 0 0 10px rgba(79, 209, 197, 0.5);
+}
+
+.controls {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(32, 156, 233, 0.15);
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.controls::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(32, 156, 233, 0.5),
+    transparent
+  );
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.controlGroup label {
+  font-size: 1rem;
+  color: #209ce9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.controlGroup input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: #2d3748;
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.controlGroup input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #4fd1c5;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.controlGroup input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(79, 209, 197, 0.5);
+}
+
+.controlGroup select {
+  padding: 0.75rem;
+  background: rgba(32, 156, 233, 0.1);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+  width: 200px;
+  transition: all 0.3s ease;
+}
+
+.controlGroup select:hover {
+  background: rgba(32, 156, 233, 0.2);
+  border-color: rgba(32, 156, 233, 0.5);
+}
+
+.controlGroup select option {
+  background: #16213e;
+  color: #fff;
+}
+
+.playButton {
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+  background: #4fd1c5;
+  border: none;
+  border-radius: 8px;
+  color: #1a1a2e;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.playButton:hover {
+  background: #38b2ac;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(79, 209, 197, 0.3);
+}
+
+.playButton:active {
+  transform: translateY(0);
+}
+
+.section {
+  margin-top: 2rem;
+}
+
+.list {
+  margin-top: 1rem;
+  margin-left: 1.5rem;
+  line-height: 1.6;
+}
+
+.list li {
+  margin-bottom: 0.5rem;
+}
+
+.keyboard {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: 220px;
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  box-shadow: 
+    0 0 20px rgba(32, 156, 233, 0.1),
+    inset 0 0 20px rgba(32, 156, 233, 0.05);
+}
+
+.key {
+  position: relative;
+  border: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 1rem;
+}
+
+.whiteKey {
+  background: rgba(255, 255, 255, 0.03);
+  width: 60px;
+  height: 100%;
+  border-radius: 0 0 5px 5px;
+  border: 1px solid rgba(32, 156, 233, 0.5);
+  margin: 0 1px;
+  z-index: 1;
+  box-shadow: 
+    0 0 10px rgba(32, 156, 233, 0.2),
+    inset 0 0 15px rgba(32, 156, 233, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.whiteKey::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(32, 156, 233, 0.8),
+    transparent
+  );
+}
+
+.whiteKey:hover {
+  background: rgba(32, 156, 233, 0.1);
+  box-shadow: 
+    0 0 15px rgba(32, 156, 233, 0.3),
+    inset 0 0 20px rgba(32, 156, 233, 0.2);
+}
+
+.whiteKey.active {
+  background: rgba(32, 156, 233, 0.15);
+  transform: translateY(2px);
+  box-shadow: 
+    0 0 20px rgba(32, 156, 233, 0.4),
+    inset 0 0 25px rgba(32, 156, 233, 0.3);
+}
+
+.blackKey {
+  background: linear-gradient(to bottom, #1a1a2e 0%, #16213e 100%);
+  width: 40px;
+  height: 60%;
+  margin: 0 -20px;
+  z-index: 2;
+  border-radius: 0 0 3px 3px;
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    inset 0 0 10px rgba(32, 156, 233, 0.1);
+}
+
+.blackKey:hover {
+  background: linear-gradient(to bottom, #1e1e36 0%, #1a2546 100%);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    inset 0 0 15px rgba(32, 156, 233, 0.2);
+}
+
+.blackKey.active {
+  background: linear-gradient(to bottom, #232342 0%, #1e2a4e 100%);
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.7),
+    inset 0 0 20px rgba(32, 156, 233, 0.3);
+}
+
+.keyLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(32, 156, 233, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 5px rgba(32, 156, 233, 0.5);
+}
+
+.blackKey .keyLabel {
+  color: rgba(32, 156, 233, 0.9);
+  text-shadow: 0 0 8px rgba(32, 156, 233, 0.7);
+}
+
+.instructions {
+  margin-top: 2rem;
+  text-align: center;
+  color: #209ce9;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    opacity: 0.7;
+    text-shadow: 0 0 10px rgba(32, 156, 233, 0.3);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 15px rgba(32, 156, 233, 0.5);
+  }
+}
+
+.visualizerControls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.controlButton {
+  padding: 0.75rem 1.5rem;
+  background: rgba(32, 156, 233, 0.1);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 5px;
+  color: #209ce9;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.controlButton:hover {
+  background: rgba(32, 156, 233, 0.2);
+  border-color: rgba(32, 156, 233, 0.5);
+  box-shadow: 0 0 15px rgba(32, 156, 233, 0.2);
+}
+
+.controlButton.recording {
+  background: rgba(233, 32, 32, 0.1);
+  border-color: rgba(233, 32, 32, 0.3);
+  color: #e92020;
+  animation: recordingPulse 2s ease-in-out infinite;
+}
+
+.controlButton.recording:hover {
+  background: rgba(233, 32, 32, 0.2);
+  border-color: rgba(233, 32, 32, 0.5);
+  box-shadow: 0 0 15px rgba(233, 32, 32, 0.2);
+}
+
+@keyframes recordingPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.songsheetContainer {
+  width: 100%;
+  max-width: 800px;
+  background: rgba(6, 20, 37, 0.95);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 
+    0 0 20px rgba(32, 156, 233, 0.1),
+    inset 0 0 20px rgba(32, 156, 233, 0.05);
+  position: relative;
+}
+
+.songsheetContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(32, 156, 233, 0.5),
+    transparent
+  );
+}
+
+.songsheetHeader {
+  background: rgba(32, 156, 233, 0.1);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(32, 156, 233, 0.3);
+  font-family: var(--font-geist-mono);
+  font-size: 0.875rem;
+  color: #209ce9;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.recordingStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recordingStatus::before {
+  content: '⦿';
+  font-size: 0.75rem;
+  animation: statusBlink 2s ease infinite;
+}
+
+.songsheet {
+  padding: 2rem;
+  max-height: 400px;
+  overflow-y: auto;
+  position: relative;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 29px,
+    rgba(32, 156, 233, 0.1) 29px,
+    rgba(32, 156, 233, 0.1) 30px
+  );
+  background-position: 0 10px;
+}
+
+.songsheet::before {
+  content: '𝄞';
+  position: absolute;
+  left: 1rem;
+  top: 1.7rem;
+  font-size: 2.5rem;
+  color: rgba(32, 156, 233, 0.8);
+  text-shadow: 0 0 10px rgba(32, 156, 233, 0.3);
+}
+
+.noteEntry {
+  position: relative;
+  margin-left: 4rem;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  animation: noteAppear 0.3s ease forwards;
+  opacity: 0;
+  transform: translateX(-20px);
+  animation-delay: calc(var(--note-delay) * 0.001s);
+}
+
+.noteEntry::before {
+  content: '♪';
+  position: absolute;
+  font-size: 1.5rem;
+  color: #209ce9;
+  text-shadow: 0 0 10px rgba(32, 156, 233, 0.5);
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.noteEntry.activeNote::before {
+  color: #4fd1c5;
+  text-shadow: 0 0 15px rgba(79, 209, 197, 0.7);
+}
+
+.noteInfo {
+  position: absolute;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(6, 20, 37, 0.9);
+  padding: 0.25rem 0.75rem;
+  border-radius: 3px;
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  font-family: var(--font-geist-mono);
+  font-size: 0.75rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+}
+
+.noteEntry:hover .noteInfo {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.noteTime, .noteName, .noteDuration {
+  color: rgba(32, 156, 233, 0.8);
+}
+
+.noteName {
+  font-weight: 500;
+}
+
+.emptyState {
+  padding: 4rem 2rem 2rem;
+  text-align: center;
+  color: rgba(32, 156, 233, 0.5);
+  font-style: italic;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes noteAppear {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.visualizerControls {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem;
+  justify-content: center;
+  border-top: 1px solid rgba(32, 156, 233, 0.3);
+  padding-top: 1rem;
+}
+
+.controlButton {
+  padding: 0.75rem 1.5rem;
+  background: rgba(32, 156, 233, 0.1);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 5px;
+  color: #209ce9;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.controlButton:hover {
+  background: rgba(32, 156, 233, 0.2);
+  border-color: rgba(32, 156, 233, 0.5);
+  box-shadow: 0 0 15px rgba(32, 156, 233, 0.2);
+}
+
+.controlButton.recording {
+  background: rgba(233, 32, 32, 0.1);
+  border-color: rgba(233, 32, 32, 0.3);
+  color: #e92020;
+  animation: recordingPulse 2s ease-in-out infinite;
+}
+
+.controlButton.recording:hover {
+  background: rgba(233, 32, 32, 0.2);
+  border-color: rgba(233, 32, 32, 0.5);
+  box-shadow: 0 0 15px rgba(233, 32, 32, 0.2);
+}
