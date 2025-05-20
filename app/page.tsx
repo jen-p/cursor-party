@@ -35,6 +35,11 @@ export default function Home() {
       path: '/prototypes/my-bookshelf'
     },
     {
+      title: 'Game Tracker',
+      description: 'A multi-platform game collection tracker with achievements, playtime, and personal reviews',
+      path: '/prototypes/game-tracker'
+    },
+    {
       title: 'Contact Form',
       description: 'A modern, responsive contact form with clean design and smooth interactions',
       path: '/prototypes/form'
