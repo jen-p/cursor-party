@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@notionhq/client": "^3.0.1",
     "@tiptap/extension-placeholder": "^2.12.0",
     "@tiptap/pm": "^2.12.0",
     "@tiptap/react": "^2.12.0",
