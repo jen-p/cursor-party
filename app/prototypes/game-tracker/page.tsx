@@ -9,7 +9,8 @@
 
 import Link from 'next/link';
 import styles from './styles.module.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import SteamModal from './SteamModal';
 
 interface Game {
   id: string;
@@ -26,6 +27,13 @@ interface Game {
   };
 }
 
+type SortOption = 'playTime' | 'title' | 'rating' | 'platform';
+
+interface SortConfig {
+  key: SortOption;
+  direction: 'asc' | 'desc';
+}
+
 interface GameFormData {
   title: string;
   platform: string;
@@ -39,7 +47,10 @@ export default function GameTracker() {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showSteamModal, setShowSteamModal] = useState(false);
+  const [steamLoading, setSteamLoading] = useState(false);
   const [editingGame, setEditingGame] = useState<string | null>(null);
+  const [sort, setSort] = useState<SortConfig>({ key: 'playTime', direction: 'desc' });
   const [formData, setFormData] = useState<GameFormData>({
     title: '',
     platform: '',
@@ -57,6 +68,35 @@ export default function GameTracker() {
     }
     setLoading(false);
   }, []);
+
+  const sortedGames = useMemo(() => {
+    return [...games].sort((a, b) => {
+      switch (sort.key) {
+        case 'playTime':
+          const aTime = a.playTime || 0;
+          const bTime = b.playTime || 0;
+          return sort.direction === 'asc' ? aTime - bTime : bTime - aTime;
+        
+        case 'title':
+          return sort.direction === 'asc'
+            ? a.title.localeCompare(b.title)
+            : b.title.localeCompare(a.title);
+        
+        case 'rating':
+          const aRating = a.rating || 0;
+          const bRating = b.rating || 0;
+          return sort.direction === 'asc' ? aRating - bRating : bRating - aRating;
+        
+        case 'platform':
+          return sort.direction === 'asc'
+            ? a.platform.localeCompare(b.platform)
+            : b.platform.localeCompare(a.platform);
+        
+        default:
+          return 0;
+      }
+    });
+  }, [games, sort]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -85,7 +125,7 @@ export default function GameTracker() {
     const gameData: Game = {
       id: editingGame || crypto.randomUUID(),
       title: formData.title,
-      platform: formData.platform,
+      platform: formData.platform || 'Unknown',
       coverUrl: formData.coverUrl || undefined,
       playTime: formData.playTime ? parseInt(formData.playTime) * 60 : undefined, // Convert hours to minutes
       rating: formData.rating ? parseInt(formData.rating) : undefined,
@@ -121,6 +161,35 @@ export default function GameTracker() {
     });
   };
 
+  const handleDelete = () => {
+    if (!editingGame) return;
+    
+    const updatedGames = games.filter(game => game.id !== editingGame);
+    setGames(updatedGames);
+    localStorage.setItem('games', JSON.stringify(updatedGames));
+    handleCloseModal();
+  };
+
+  const handleSteamGames = (steamGames: Game[]) => {
+    setSteamLoading(true);
+    // Filter out any Steam games we already have
+    const existingIds = new Set(games.map(g => g.id));
+    const newGames = steamGames.filter(g => !existingIds.has(g.id));
+    
+    // Add new games to the list
+    const updatedGames = [...games, ...newGames];
+    setGames(updatedGames);
+    localStorage.setItem('games', JSON.stringify(updatedGames));
+    setSteamLoading(false);
+  };
+
+  const handleSort = (key: SortOption) => {
+    setSort(prev => ({
+      key,
+      direction: prev.key === key ? (prev.direction === 'asc' ? 'desc' : 'asc') : 'desc'
+    }));
+  };
+
   return (
     <div className={styles.container}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -131,10 +200,15 @@ export default function GameTracker() {
 
       <div className={styles.platformButtons}>
         <span className={styles.platformLabel}>Connect</span>
-        <button className={styles.platformButton}>Steam</button>
+        <button 
+          className={styles.platformButton}
+          onClick={() => setShowSteamModal(true)}
+          disabled={steamLoading}
+        >
+          {steamLoading ? 'Connecting...' : 'Steam'}
+        </button>
         <button className={styles.platformButton}>PlayStation</button>
         <button className={styles.platformButton}>Xbox</button>
-        <button className={styles.platformButton}>Switch</button>
         <button 
           className={styles.platformButton}
           onClick={() => setShowModal(true)}
@@ -147,50 +221,85 @@ export default function GameTracker() {
         {loading ? (
           <div className={styles.loading}>Initializing game data...</div>
         ) : (
-          <div className={styles.gameGrid}>
-            {games.length === 0 ? (
-              <div className={styles.emptyState}>
-                <h2>No games in database</h2>
-                <p>Connect your gaming accounts or add games manually to start tracking your collection</p>
-              </div>
-            ) : (
-              games.map((game) => (
-                <div key={game.id} className={styles.gameCard}>
-                  <button 
-                    className={styles.editButton}
-                    onClick={() => handleEdit(game)}
-                    title="Edit game"
-                  >
-                    ✎
-                  </button>
-                  <div className={styles.gameCover}>
-                    {game.coverUrl ? (
-                      <img src={game.coverUrl} alt={game.title} />
-                    ) : (
-                      <div className={styles.placeholderCover}></div>
-                    )}
-                  </div>
-                  <div className={styles.gameInfo}>
-                    <h3>{game.title}</h3>
-                    <p className={styles.platform}>{game.platform}</p>
-                    {game.playTime && (
-                      <p className={styles.playTime}>
-                        {Math.floor(game.playTime / 60)} hours played
-                      </p>
-                    )}
-                    {game.rating && (
-                      <div className={styles.rating}>
-                        {"★".repeat(game.rating)}{"☆".repeat(5 - game.rating)}
-                      </div>
-                    )}
-                    {game.review && (
-                      <p className={styles.review}>{game.review}</p>
-                    )}
-                  </div>
+          <>
+            <div className={styles.sortControls}>
+              <span className={styles.sortLabel}>Sort by:</span>
+              <button
+                className={`${styles.sortButton} ${sort.key === 'playTime' ? styles.active : ''}`}
+                onClick={() => handleSort('playTime')}
+              >
+                Hours Played {sort.key === 'playTime' && (sort.direction === 'asc' ? '↑' : '↓')}
+              </button>
+              <button
+                className={`${styles.sortButton} ${sort.key === 'title' ? styles.active : ''}`}
+                onClick={() => handleSort('title')}
+              >
+                Title {sort.key === 'title' && (sort.direction === 'asc' ? '↑' : '↓')}
+              </button>
+              <button
+                className={`${styles.sortButton} ${sort.key === 'rating' ? styles.active : ''}`}
+                onClick={() => handleSort('rating')}
+              >
+                Rating {sort.key === 'rating' && (sort.direction === 'asc' ? '↑' : '↓')}
+              </button>
+              <button
+                className={`${styles.sortButton} ${sort.key === 'platform' ? styles.active : ''}`}
+                onClick={() => handleSort('platform')}
+              >
+                Platform {sort.key === 'platform' && (sort.direction === 'asc' ? '↑' : '↓')}
+              </button>
+            </div>
+
+            <div className={styles.gameGrid}>
+              {sortedGames.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <h2>No games in database</h2>
+                  <p>Connect your gaming accounts or add games manually to start tracking your collection</p>
                 </div>
-              ))
-            )}
-          </div>
+              ) : (
+                sortedGames.map((game) => (
+                  <div key={game.id} className={styles.gameCard}>
+                    <button 
+                      className={styles.editButton}
+                      onClick={() => handleEdit(game)}
+                      title="Edit game"
+                    >
+                      ✎
+                    </button>
+                    <div className={styles.gameCover}>
+                      {game.coverUrl ? (
+                        <img src={game.coverUrl} alt={game.title} />
+                      ) : (
+                        <div className={styles.placeholderCover}></div>
+                      )}
+                    </div>
+                    <div className={styles.gameInfo}>
+                      <h3>{game.title}</h3>
+                      <p className={styles.platform}>{game.platform}</p>
+                      {game.playTime && (
+                        <p className={styles.playTime}>
+                          {Math.floor(game.playTime / 60)} hours played
+                        </p>
+                      )}
+                      {game.achievements && (
+                        <p className={styles.achievements}>
+                          {game.achievements.earned}/{game.achievements.total} achievements
+                        </p>
+                      )}
+                      {game.rating && (
+                        <div className={styles.rating}>
+                          {"★".repeat(game.rating)}{"☆".repeat(5 - game.rating)}
+                        </div>
+                      )}
+                      {game.review && (
+                        <p className={styles.review}>{game.review}</p>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
         )}
       </main>
 
@@ -226,16 +335,18 @@ export default function GameTracker() {
                   name="platform"
                   value={formData.platform}
                   onChange={handleInputChange}
-                  required
+                  required={!editingGame}
                 >
                   <option value="">Select Platform</option>
-                  <option value="PC">PC</option>
+                  <option value="Steam">Steam</option>
+                  <option value="PC">PC (Other)</option>
                   <option value="PlayStation 5">PlayStation 5</option>
                   <option value="PlayStation 4">PlayStation 4</option>
                   <option value="Xbox Series X|S">Xbox Series X|S</option>
                   <option value="Xbox One">Xbox One</option>
                   <option value="Nintendo Switch">Nintendo Switch</option>
                   <option value="Other">Other</option>
+                  {editingGame && <option value="Unknown">Unknown</option>}
                 </select>
               </div>
 
@@ -295,21 +406,40 @@ export default function GameTracker() {
               </div>
 
               <div className={styles.formActions}>
-                <button 
-                  type="button" 
-                  className={styles.cancelButton}
-                  onClick={handleCloseModal}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className={styles.submitButton}>
-                  {editingGame ? 'Save Changes' : 'Add Game'}
-                </button>
+                <div className={styles.formActionsLeft}>
+                  {editingGame && (
+                    <button 
+                      type="button" 
+                      className={styles.deleteButton}
+                      onClick={handleDelete}
+                    >
+                      Delete Game
+                    </button>
+                  )}
+                </div>
+                <div className={styles.formActionsRight}>
+                  <button 
+                    type="button" 
+                    className={styles.cancelButton}
+                    onClick={handleCloseModal}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className={styles.submitButton}>
+                    {editingGame ? 'Save Changes' : 'Add Game'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      <SteamModal
+        isOpen={showSteamModal}
+        onClose={() => setShowSteamModal(false)}
+        onConnect={handleSteamGames}
+      />
     </div>
   );
 } 
