@@ -34,6 +34,14 @@ interface SortConfig {
   direction: 'asc' | 'desc';
 }
 
+interface Filters {
+  platform: string;
+  minRating: number;
+  searchQuery: string;
+  hideUnplayed: boolean;
+  showCompleted: boolean;
+}
+
 interface GameFormData {
   title: string;
   platform: string;
@@ -51,6 +59,13 @@ export default function GameTracker() {
   const [steamLoading, setSteamLoading] = useState(false);
   const [editingGame, setEditingGame] = useState<string | null>(null);
   const [sort, setSort] = useState<SortConfig>({ key: 'playTime', direction: 'desc' });
+  const [filters, setFilters] = useState<Filters>({
+    platform: '',
+    minRating: 0,
+    searchQuery: '',
+    hideUnplayed: false,
+    showCompleted: false
+  });
   const [formData, setFormData] = useState<GameFormData>({
     title: '',
     platform: '',
@@ -69,34 +84,53 @@ export default function GameTracker() {
     setLoading(false);
   }, []);
 
-  const sortedGames = useMemo(() => {
-    return [...games].sort((a, b) => {
-      switch (sort.key) {
-        case 'playTime':
-          const aTime = a.playTime || 0;
-          const bTime = b.playTime || 0;
-          return sort.direction === 'asc' ? aTime - bTime : bTime - aTime;
+  const filteredAndSortedGames = useMemo(() => {
+    return [...games]
+      .filter(game => {
+        // Platform filter
+        if (filters.platform && game.platform !== filters.platform) return false;
         
-        case 'title':
-          return sort.direction === 'asc'
-            ? a.title.localeCompare(b.title)
-            : b.title.localeCompare(a.title);
+        // Rating filter
+        if (filters.minRating > 0 && (!game.rating || game.rating < filters.minRating)) return false;
         
-        case 'rating':
-          const aRating = a.rating || 0;
-          const bRating = b.rating || 0;
-          return sort.direction === 'asc' ? aRating - bRating : bRating - aRating;
+        // Search query
+        if (filters.searchQuery && !game.title.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
         
-        case 'platform':
-          return sort.direction === 'asc'
-            ? a.platform.localeCompare(b.platform)
-            : b.platform.localeCompare(a.platform);
+        // Hide unplayed games
+        if (filters.hideUnplayed && (!game.playTime || game.playTime === 0)) return false;
         
-        default:
-          return 0;
-      }
-    });
-  }, [games, sort]);
+        // Show only completed games (100% achievements)
+        if (filters.showCompleted && (!game.achievements || game.achievements.earned < game.achievements.total)) return false;
+        
+        return true;
+      })
+      .sort((a, b) => {
+        switch (sort.key) {
+          case 'playTime':
+            const aTime = a.playTime || 0;
+            const bTime = b.playTime || 0;
+            return sort.direction === 'asc' ? aTime - bTime : bTime - aTime;
+          
+          case 'title':
+            return sort.direction === 'asc'
+              ? a.title.localeCompare(b.title)
+              : b.title.localeCompare(a.title);
+          
+          case 'rating':
+            const aRating = a.rating || 0;
+            const bRating = b.rating || 0;
+            return sort.direction === 'asc' ? aRating - bRating : bRating - aRating;
+          
+          case 'platform':
+            return sort.direction === 'asc'
+              ? a.platform.localeCompare(b.platform)
+              : b.platform.localeCompare(a.platform);
+          
+          default:
+            return 0;
+        }
+      });
+  }, [games, sort, filters]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -222,6 +256,67 @@ export default function GameTracker() {
           <div className={styles.loading}>Initializing game data...</div>
         ) : (
           <>
+            <div className={styles.filterControls}>
+              <div className={styles.searchBox}>
+                <input
+                  type="text"
+                  placeholder="Search games..."
+                  value={filters.searchQuery}
+                  onChange={(e) => setFilters(prev => ({ ...prev, searchQuery: e.target.value }))}
+                  className={styles.searchInput}
+                />
+              </div>
+              
+              <div className={styles.filterOptions}>
+                <select
+                  value={filters.platform}
+                  onChange={(e) => setFilters(prev => ({ ...prev, platform: e.target.value }))}
+                  className={styles.filterSelect}
+                >
+                  <option value="">All Platforms</option>
+                  <option value="Steam">Steam</option>
+                  <option value="PC">PC (Other)</option>
+                  <option value="PlayStation 5">PlayStation 5</option>
+                  <option value="PlayStation 4">PlayStation 4</option>
+                  <option value="Xbox Series X|S">Xbox Series X|S</option>
+                  <option value="Xbox One">Xbox One</option>
+                  <option value="Nintendo Switch">Nintendo Switch</option>
+                  <option value="Other">Other</option>
+                </select>
+
+                <select
+                  value={filters.minRating}
+                  onChange={(e) => setFilters(prev => ({ ...prev, minRating: Number(e.target.value) }))}
+                  className={styles.filterSelect}
+                >
+                  <option value="0">All Ratings</option>
+                  <option value="5">★★★★★ Only</option>
+                  <option value="4">★★★★☆ & Up</option>
+                  <option value="3">★★★☆☆ & Up</option>
+                  <option value="2">★★☆☆☆ & Up</option>
+                  <option value="1">★☆☆☆☆ & Up</option>
+                </select>
+
+                <label className={styles.filterCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={filters.hideUnplayed}
+                    onChange={(e) => setFilters(prev => ({ ...prev, hideUnplayed: e.target.checked }))}
+                  />
+                  Hide Unplayed
+                </label>
+
+                <label className={styles.filterCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={filters.showCompleted}
+                    onChange={(e) => setFilters(prev => ({ ...prev, showCompleted: e.target.checked }))}
+                  />
+                  Show 100% Complete
+                </label>
+              </div>
+            </div>
+
             <div className={styles.sortControls}>
               <span className={styles.sortLabel}>Sort by:</span>
               <button
@@ -251,13 +346,13 @@ export default function GameTracker() {
             </div>
 
             <div className={styles.gameGrid}>
-              {sortedGames.length === 0 ? (
+              {filteredAndSortedGames.length === 0 ? (
                 <div className={styles.emptyState}>
-                  <h2>No games in database</h2>
-                  <p>Connect your gaming accounts or add games manually to start tracking your collection</p>
+                  <h2>No games match your filters</h2>
+                  <p>Try adjusting your search criteria or filters to see more games</p>
                 </div>
               ) : (
-                sortedGames.map((game) => (
+                filteredAndSortedGames.map((game) => (
                   <div key={game.id} className={styles.gameCard}>
                     <button 
                       className={styles.editButton}

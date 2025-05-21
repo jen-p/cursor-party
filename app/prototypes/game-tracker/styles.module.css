@@ -796,3 +796,104 @@
   padding-left: calc(1rem - 2px);
   font-weight: 600;
 }
+
+.filterControls {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(6, 20, 37, 0.8);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 4px;
+  animation: slideIn 0.3s ease;
+}
+
+.searchBox {
+  margin-bottom: 1rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(6, 20, 37, 0.8);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 2px;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #209ce9;
+  box-shadow: 0 0 15px rgba(32, 156, 233, 0.2);
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.filterOptions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  background: rgba(6, 20, 37, 0.8);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 2px;
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4L6 8L10 4' stroke='%23209ce9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  transition: all 0.3s ease;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #209ce9;
+  box-shadow: 0 0 15px rgba(32, 156, 233, 0.2);
+}
+
+.filterCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.filterCheckbox:hover {
+  color: #fff;
+}
+
+.filterCheckbox input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  background: rgba(6, 20, 37, 0.8);
+  border: 1px solid rgba(32, 156, 233, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.3s ease;
+}
+
+.filterCheckbox input[type="checkbox"]:checked {
+  background: #209ce9;
+  border-color: #209ce9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 6L5 9L10 3' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.filterCheckbox input[type="checkbox"]:focus {
+  outline: none;
+  border-color: #209ce9;
+  box-shadow: 0 0 15px rgba(32, 156, 233, 0.2);
+}

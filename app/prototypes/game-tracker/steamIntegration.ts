@@ -28,32 +28,57 @@ export class SteamIntegration {
   private config: SteamConfig;
   private baseUrl = 'https://api.steampowered.com';
   private corsProxy = 'https://cors-anywhere.herokuapp.com/';
+  private fallbackProxy = 'https://api.allorigins.win/raw?url=';
 
   constructor(config: SteamConfig) {
     this.config = config;
     console.log('Initializing Steam integration with Steam ID:', config.steamId);
   }
 
-  private async makeRequest(url: string): Promise<Response> {
-    // Add CORS proxy to the URL
-    const proxyUrl = this.corsProxy + url;
-    console.log('Making request to:', proxyUrl);
-    
-    const response = await fetch(proxyUrl, {
-      headers: {
-        'Origin': 'https://localhost:3000'
+  private async makeRequest(url: string, useStoreFallback = false): Promise<Response> {
+    // Try direct request first (might work for store.steampowered.com)
+    if (useStoreFallback) {
+      try {
+        const directResponse = await fetch(url);
+        if (directResponse.ok) {
+          return directResponse;
+        }
+      } catch (error) {
+        console.log('Direct request failed, trying proxies...');
       }
-    });
+    }
+
+    // Try primary CORS proxy
+    try {
+      const primaryProxyUrl = this.corsProxy + url;
+      console.log('Trying primary proxy:', primaryProxyUrl);
+      
+      const response = await fetch(primaryProxyUrl, {
+        headers: {
+          'Origin': 'https://localhost:3000'
+        }
+      });
+      
+      if (response.ok) {
+        return response;
+      }
+    } catch (error) {
+      console.log('Primary proxy failed, trying fallback...');
+    }
+
+    // Try fallback proxy
+    const fallbackProxyUrl = this.fallbackProxy + encodeURIComponent(url);
+    console.log('Trying fallback proxy:', fallbackProxyUrl);
     
-    console.log('Response status:', response.status);
+    const fallbackResponse = await fetch(fallbackProxyUrl);
     
-    if (!response.ok) {
-      const text = await response.text();
+    if (!fallbackResponse.ok) {
+      const text = await fallbackResponse.text();
       console.error('Error response:', text);
-      throw new Error(`Steam API error: ${response.status} - ${text || response.statusText}`);
+      throw new Error(`Steam API error: ${fallbackResponse.status} - ${text || fallbackResponse.statusText}`);
     }
     
-    return response;
+    return fallbackResponse;
   }
 
   /**
@@ -62,6 +87,7 @@ export class SteamIntegration {
   async testConnection(): Promise<boolean> {
     try {
       console.log('Testing Steam connection...');
+      // Using v2 of the API as it's more stable
       const url = `${this.baseUrl}/ISteamUser/GetPlayerSummaries/v2/?key=${this.config.apiKey}&steamids=${this.config.steamId}`;
       const response = await this.makeRequest(url);
       const data = await response.json();
@@ -88,6 +114,7 @@ export class SteamIntegration {
   async getOwnedGames(): Promise<SteamGame[]> {
     try {
       console.log('Fetching owned games...');
+      // Using v1 as it provides more game information
       const url = `${this.baseUrl}/IPlayerService/GetOwnedGames/v1/?key=${this.config.apiKey}&steamid=${this.config.steamId}&include_appinfo=1&include_played_free_games=1`;
       const response = await this.makeRequest(url);
       const data = await response.json();
@@ -113,8 +140,10 @@ export class SteamIntegration {
   async getGameDetails(appId: number): Promise<SteamGameDetails | null> {
     try {
       console.log(`Fetching details for game ${appId}...`);
+      // The store API is more permissive with CORS
       const response = await this.makeRequest(
-        `https://store.steampowered.com/api/appdetails?appids=${appId}`
+        `https://store.steampowered.com/api/appdetails?appids=${appId}`,
+        true // Try direct request first for store API
       );
       const data = await response.json();
       
@@ -136,6 +165,7 @@ export class SteamIntegration {
   async getGameAchievements(appId: number): Promise<SteamGameAchievements | null> {
     try {
       console.log(`Fetching achievements for game ${appId}...`);
+      // Using v1 for consistency with your old implementation
       const response = await this.makeRequest(
         `${this.baseUrl}/ISteamUserStats/GetPlayerAchievements/v1/?appid=${appId}&key=${this.config.apiKey}&steamid=${this.config.steamId}`
       );
